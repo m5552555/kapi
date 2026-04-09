@@ -1,5 +1,5 @@
 // preset_notifier.dart
-// Purpose: ChangeNotifier managing the list of user-defined presets with load, save, apply, and delete operations.
+// Purpose: ChangeNotifier managing the list of saved presets — full request snapshot save, load, and delete.
 
 import 'dart:math';
 
@@ -24,13 +24,18 @@ class PresetNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Saves the current state of [notifier] as a new named preset.
+  /// Captures the full current request state from [notifier] and saves it as a named preset.
+  /// Every field of the request form is stored so that loading this preset later
+  /// produces an exact restoration — not a partial overlay.
   Future<void> saveFromNotifier(String name, ApiTesterNotifier notifier) async {
     final preset = Preset(
       id: _generateId(),
       name: name.trim().isEmpty ? 'Unnamed' : name.trim(),
       createdAt: DateTime.now(),
       baseUrl: notifier.baseUrlController.text,
+      endpoint: notifier.endpointController.text,
+      method: notifier.method,
+      endpointType: notifier.endpointType,
       authType: notifier.authType,
       apiKeyPlacement: notifier.apiKeyPlacement,
       username: notifier.usernameController.text,
@@ -39,6 +44,11 @@ class PresetNotifier extends ChangeNotifier {
       apiKeyName: notifier.apiKeyNameController.text,
       apiKeyValue: notifier.apiKeyValueController.text,
       headers: List.of(notifier.headers),
+      queryParams: List.of(notifier.queryParams),
+      pathParams: List.of(notifier.pathParams),
+      formFields: List.of(notifier.formFields),
+      bodyType: notifier.bodyType,
+      rawJsonBody: notifier.rawJsonController.text,
     );
     _presets = [preset, ..._presets];
     notifyListeners();
@@ -52,22 +62,10 @@ class PresetNotifier extends ChangeNotifier {
     await PresetStorage.save(_presets);
   }
 
-  /// Applies all values from [preset] into [notifier].
-  /// Only overwrites non-empty fields so the user's current work is preserved where possible.
+  /// Loads [preset] into [notifier] as an exact snapshot, fully replacing all current
+  /// request form state. No merging — the old state is cleared before the preset is applied.
   void apply(Preset preset, ApiTesterNotifier notifier) {
-    if (preset.baseUrl.isNotEmpty) {
-      notifier.baseUrlController.text = preset.baseUrl;
-    }
-    notifier.setAuthType(preset.authType);
-    notifier.setApiKeyPlacement(preset.apiKeyPlacement);
-    notifier.usernameController.text = preset.username;
-    notifier.passwordController.text = preset.password;
-    notifier.tokenController.text = preset.token;
-    notifier.apiKeyNameController.text = preset.apiKeyName;
-    notifier.apiKeyValueController.text = preset.apiKeyValue;
-    if (preset.headers.isNotEmpty) {
-      notifier.updateHeaders(preset.headers);
-    }
+    notifier.loadFromPreset(preset);
   }
 
   static String _generateId() {

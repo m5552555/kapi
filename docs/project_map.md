@@ -79,8 +79,8 @@ Stateless logic classes. All are `abstract final` with static methods.
 ### state/
 | File | Role |
 |------|------|
-| `api_tester_notifier.dart` | ChangeNotifier owning all form state, controllers, request lifecycle, token flow, trace, and draft persistence |
-| `preset_notifier.dart` | ChangeNotifier managing the list of saved presets |
+| `api_tester_notifier.dart` | ChangeNotifier owning all form state, controllers, request lifecycle, token flow, trace, draft persistence, and preset snapshot restore |
+| `preset_notifier.dart` | ChangeNotifier managing the list of saved presets — full-snapshot save, exact-restore apply, and delete |
 
 ### presentation/
 | File | Role |
@@ -236,6 +236,48 @@ state/api_tester_notifier.dart     — orchestrates load/save/restore lifecycle
 
 ### Draft file location
 `%APPDATA%\Kapi\draft.json` — e.g. `C:\Users\username\AppData\Roaming\Kapi\draft.json`
+
+---
+
+## Preset save/restore subsystem
+
+### Where it lives
+```
+domain/models/preset.dart          — full-snapshot immutable model (pure Dart); schema v2
+data/preset_storage.dart           — file I/O for the preset list JSON
+state/preset_notifier.dart         — save, apply (exact restore), and delete operations
+state/api_tester_notifier.dart     — loadFromPreset() — reset-before-load implementation
+widgets/presets/preset_menu.dart   — UI: save form, preset list, apply/delete buttons
+```
+
+### How save works
+`PresetNotifier.saveFromNotifier()` captures every field of the request form:
+method, baseUrl, endpoint, endpointType, auth (type + all fields), headers, queryParams,
+pathParams, formFields, bodyType, rawJsonBody.
+The captured `Preset` is prepended to the list and written to `%APPDATA%\Kapi\presets.json`.
+
+### How reset-before-load works
+`ApiTesterNotifier.loadFromPreset(preset)`:
+1. Cancels any pending debounced save.
+2. Sets `_isRestoring = true` to suppress save listener callbacks.
+3. Overwrites every text controller with the preset value.
+4. Overwrites every enum selection (method, authType, bodyType, endpointType, apiKeyPlacement).
+5. Replaces every KV list (headers, queryParams, pathParams, formFields) entirely.
+6. Clears request lifecycle state: IdleState, null trace, null errors.
+7. Bumps `_resetKey` so KVTable widgets reinitialize from the new data.
+8. Sets `_isRestoring = false`.
+9. Calls `_scheduleSave()` to persist the loaded state as the new active draft.
+10. Calls `notifyListeners()` to rebuild the UI.
+
+### Backward compatibility for old presets
+Old version-1 presets (no `version` field) are read safely: every new field defaults to a
+safe value (empty string, `[]`, or the first/normal enum value). They load without errors.
+Presets with an explicit version higher than `_schemaVersion` are skipped gracefully.
+
+### Captured token across preset loads
+`_capturedToken` is session-level runtime state. It is preserved when a preset is loaded
+so that a token obtained from a Token Endpoint is still available for a Protected Endpoint
+preset loaded in the same session. It is not stored in or restored from any preset file.
 
 ---
 

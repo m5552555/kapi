@@ -164,6 +164,40 @@ panel to see it) and can be copied via the "Copy as cURL" button in the panel he
 
 ---
 
+## How preset save/restore works
+
+### Saving a preset
+`PresetNotifier.saveFromNotifier(name, notifier)` reads every public field and controller
+from the notifier and builds a `Preset` with schema version 2.
+All request sections are captured: method, baseUrl, endpoint, endpointType, auth (all fields),
+headers, queryParams, pathParams, formFields, bodyType, rawJsonBody.
+
+### Loading a preset (reset-before-load)
+`ApiTesterNotifier.loadFromPreset(preset)` is the authoritative restore entry point.
+
+```
+loadFromPreset(preset)
+  ├─ _saveDebounce?.cancel()           — discard pending save
+  ├─ _isRestoring = true               — suppress save listener callbacks
+  ├─ (set all text controllers)        — baseUrl, endpoint, auth fields, rawJson
+  ├─ (set all enum values)             — method, authType, apiKeyPlacement, bodyType, endpointType
+  ├─ (replace all KV lists)            — headers, queryParams, pathParams, formFields
+  ├─ (clear lifecycle state)           — IdleState, null trace, null errors
+  ├─ _resetKey++                       — forces KVTable widget recreation
+  ├─ _isRestoring = false
+  ├─ _scheduleSave()                   — persist loaded state as new active draft
+  └─ notifyListeners()                 — full UI rebuild from new state
+```
+
+`_capturedToken` is NOT cleared on preset load — it is session-level runtime state.
+
+### Backward compatibility
+Old v1 presets (no `version` field) are deserialized with safe defaults for all v2 fields.
+No crash, no data loss. The preset loads cleanly and picks sensible defaults for any
+missing fields.
+
+---
+
 ## Draft save/restore lifecycle
 
 ```

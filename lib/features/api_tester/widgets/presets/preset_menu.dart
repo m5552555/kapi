@@ -166,8 +166,34 @@ class _PresetsDialogState extends State<_PresetsDialog> {
                   itemBuilder: (ctx, i) => _PresetRow(
                     preset: presets[i],
                     onApply: () {
+                      // Capture the messenger before popping so the reference stays valid.
+                      final messenger = ScaffoldMessenger.of(context);
                       context.read<PresetNotifier>().apply(presets[i], widget.apiNotifier);
                       Navigator.of(context).pop();
+                      messenger
+                        ..clearSnackBars()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'Saved API loaded successfully.',
+                              style: TextStyle(
+                                color: AppColors.primaryGreenBright,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            duration: const Duration(milliseconds: 2000),
+                            backgroundColor: AppColors.surfaceRaised,
+                            behavior: SnackBarBehavior.floating,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              side: const BorderSide(color: AppColors.border),
+                            ),
+                            elevation: 6,
+                          ),
+                        );
                     },
                     onDelete: () =>
                         context.read<PresetNotifier>().delete(presets[i].id),

@@ -18,6 +18,7 @@ import '../domain/models/auth_config.dart';
 import '../domain/models/captured_token.dart';
 import '../domain/models/endpoint_type.dart';
 import '../domain/models/kv_pair.dart';
+import '../domain/models/preset.dart';
 import '../domain/models/request_draft.dart';
 import '../domain/models/request_state.dart';
 import '../domain/models/request_trace.dart';
@@ -310,6 +311,57 @@ class ApiTesterNotifier extends ChangeNotifier {
     _resetKey++;
 
     DraftStorage.clear();
+    notifyListeners();
+  }
+
+  // ─── Load from preset ─────────────────────────────────────────────────────────
+
+  /// Loads [preset] as an exact snapshot, fully replacing the current request form state.
+  /// Performs a complete reset before applying the saved values so no stale state remains.
+  /// The captured token (_capturedToken) is intentionally preserved — it is session-level
+  /// runtime state and is not part of the saved request definition.
+  void loadFromPreset(Preset preset) {
+    _saveDebounce?.cancel();
+    _saveDebounce = null;
+    _isRestoring = true;
+
+    // Populate all text controllers from the saved snapshot.
+    baseUrlController.text = preset.baseUrl;
+    endpointController.text = preset.endpoint;
+    usernameController.text = preset.username;
+    passwordController.text = preset.password;
+    tokenController.text = preset.token;
+    apiKeyNameController.text = preset.apiKeyName;
+    apiKeyValueController.text = preset.apiKeyValue;
+    rawJsonController.text = preset.rawJsonBody;
+
+    // Restore all enum-based selections.
+    _method = preset.method;
+    _authType = preset.authType;
+    _apiKeyPlacement = preset.apiKeyPlacement;
+    _bodyType = preset.bodyType;
+    _endpointType = preset.endpointType;
+
+    // Replace KV lists completely — no merging with old state.
+    _headers = List.of(preset.headers);
+    _queryParams = List.of(preset.queryParams);
+    _pathParams = List.of(preset.pathParams);
+    _formFields = List.of(preset.formFields);
+
+    // Clear request lifecycle state for a clean fresh start.
+    _requestState = const IdleState();
+    _lastTrace = null;
+    _jsonError = null;
+    _validationError = null;
+    _tokenExtractionError = null;
+    _lastSendWasTokenEndpoint = false;
+
+    // Bump the reset key so all KVTable widgets reinitialize from the new data.
+    _resetKey++;
+    _isRestoring = false;
+
+    // Persist the newly loaded state as the active draft for cross-session continuity.
+    _scheduleSave();
     notifyListeners();
   }
 

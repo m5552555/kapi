@@ -140,7 +140,7 @@ Response panel states:
 - JSON validation and format-on-demand
 - Reset clears all form state, reinitializes KVTable widgets via resetKey, and deletes the draft
 - **Last-draft persistence**: automatically saves and restores the full request form state across sessions
-- **Custom presets**: save/apply/delete named request configurations (baseUrl + auth + headers)
+- **Full-snapshot presets**: save/apply/delete named request configurations that capture the complete request form state (method, endpoint, auth, headers, query params, path params, body type, body content, endpoint type); applying a preset does a full reset-before-load restoring an exact replica with no stale values
 - **Multi-select KVTable**: per-row select, bulk enable/disable/duplicate/delete
 - **Copy actions**: CopyButton widget throughout response viewer; Copy as cURL in RequestTracePanel
 - **Request fidelity**: fixed form-body encoding and Content-Type conflict so requests match PowerShell/cURL exactly

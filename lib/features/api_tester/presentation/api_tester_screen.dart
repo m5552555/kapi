@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../state/api_tester_notifier.dart';
 import '../widgets/app_header.dart';
+import '../widgets/presets/edit_mode_bar.dart';
 import '../widgets/request_builder/action_buttons.dart';
 import '../widgets/request_builder/auth_section.dart';
 import '../widgets/request_builder/endpoint_type_bar.dart';
@@ -86,6 +87,8 @@ class _RequestPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const EditModeBar(),
+
         // Method + URL (always visible, not collapsible)
         const UrlInputRow(),
 

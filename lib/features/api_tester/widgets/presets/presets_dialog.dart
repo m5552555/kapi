@@ -126,7 +126,6 @@ class _PresetsDialogState extends State<PresetsDialog> {
                   separatorBuilder: (context, i) => const Divider(height: 1),
                   itemBuilder: (ctx, i) => PresetRow(
                     preset: presets[i],
-                    apiNotifier: widget.apiNotifier,
                     onApply: () => _onApply(context, presets[i]),
                     onDelete: () =>
                         context.read<PresetNotifier>().delete(presets[i].id),

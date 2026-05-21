@@ -41,6 +41,9 @@ mixin _ActionsMixin on _ApiTesterState {
 
     _resetKey++;
 
+    _editingPresetId = null;
+    _editingPresetName = null;
+
     DraftStorage.clear();
     notifyListeners();
   }
@@ -89,8 +92,18 @@ mixin _ActionsMixin on _ApiTesterState {
     _resetKey++;
     _isRestoring = false;
 
+    _editingPresetId = preset.id;
+    _editingPresetName = preset.name;
+
     // Persist the newly loaded state as the active draft for cross-session continuity.
     _scheduleSave();
+    notifyListeners();
+  }
+
+  void exitEditMode() {
+    if (_editingPresetId == null) return;
+    _editingPresetId = null;
+    _editingPresetName = null;
     notifyListeners();
   }
 }

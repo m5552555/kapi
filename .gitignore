@@ -43,3 +43,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local app data / secrets (defensive — actual files live in %APPDATA%\Kapi)
+presets.json
+draft.json
+*.env
+.env
+.env.*
+
+# Local-only files — kept on disk but never pushed
+CLAUDE.md
+docs/
+.claude/

@@ -1,17 +1,34 @@
-# kapi
+# Kapi
 
-A new Flutter project.
+A clean Windows desktop API testing tool built with Flutter.
+Test HTTP endpoints with auth flows, save reusable presets, and export test reports.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- HTTP request builder (GET/POST/PUT/PATCH/DELETE) with headers, query params, path params, and body
+- Multiple auth types: Basic, Bearer Token, API Key (header or query)
+- Guided token flow: capture a token from a Token Endpoint and auto-inject it into Protected Endpoints
+- Named presets — save, load, edit, and delete full request snapshots
+- Auto-saved draft — never lose your work between sessions
+- Wire-level request trace with Copy as cURL
+- Styled HTML report export to `%USERPROFILE%\Documents\Kapi Reports\`
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Flutter (Windows Desktop)
+- Provider for state management
+- `http` package
+- Local storage via JSON files in `%APPDATA%\Kapi\`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Run
+
+```bash
+flutter pub get
+flutter run -d windows
+```
+
+Minimum: Windows 10 x64.
+
+## License
+
+MIT

@@ -81,6 +81,8 @@ abstract class _ApiTesterState extends ChangeNotifier {
 
   // Persistence internals.
   bool _isRestoring = false;
+  String? _editingPresetId;
+  String? _editingPresetName;
   Timer? _saveDebounce;
 
   // Every text controller in one place — used for listener wiring & disposal.
@@ -140,6 +142,11 @@ class ApiTesterNotifier extends _ApiTesterState
 
   // Reset key getter.
   int get resetKey => _resetKey;
+
+  // Editing-preset getters.
+  String? get editingPresetId => _editingPresetId;
+  String? get editingPresetName => _editingPresetName;
+  bool get isEditingPreset => _editingPresetId != null;
 
   @override
   void dispose() {

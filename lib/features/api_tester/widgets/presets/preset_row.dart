@@ -1,72 +1,22 @@
 // preset_row.dart
-// Purpose: A single preset list row with Apply, Edit, and Delete actions.
+// Purpose: A single preset list row with Apply and Delete actions.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../state/api_tester_notifier.dart';
-import '../../state/preset_notifier.dart';
-import 'edit_preset_dialog.dart';
 
 class PresetRow extends StatelessWidget {
   const PresetRow({
     super.key,
     required this.preset,
-    required this.apiNotifier,
     required this.onApply,
     required this.onDelete,
   });
 
   final dynamic preset;
-  final ApiTesterNotifier apiNotifier;
   final VoidCallback onApply;
   final VoidCallback onDelete;
-
-  void _showEditDialog(BuildContext context) {
-    final notifier = context.read<PresetNotifier>();
-    final messenger = ScaffoldMessenger.of(context);
-
-    showDialog<void>(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (ctx) => EditPresetDialog(
-        initialName: preset.name as String,
-        onUpdate: (newName) {
-          notifier.overwritePreset(
-            preset.id as String,
-            newName,
-            apiNotifier,
-          );
-          Navigator.of(ctx).pop();
-          messenger
-            ..clearSnackBars()
-            ..showSnackBar(
-              SnackBar(
-                content: const Text(
-                  'Preset updated.',
-                  style: TextStyle(
-                    color: AppColors.primaryGreenBright,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                duration: const Duration(milliseconds: 2000),
-                backgroundColor: AppColors.surfaceRaised,
-                behavior: SnackBarBehavior.floating,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                  side: const BorderSide(color: AppColors.border),
-                ),
-                elevation: 6,
-              ),
-            );
-        },
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,19 +72,6 @@ class PresetRow extends StatelessWidget {
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(width: AppConstants.spacingXs),
-          Tooltip(
-            message: 'Edit preset',
-            child: InkWell(
-              onTap: () => _showEditDialog(context),
-              borderRadius: BorderRadius.circular(3),
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(Icons.edit_outlined,
-                    size: 14, color: AppColors.textMuted),
               ),
             ),
           ),

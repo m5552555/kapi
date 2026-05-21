@@ -62,6 +62,44 @@ class PresetNotifier extends ChangeNotifier {
     await PresetStorage.save(_presets);
   }
 
+  /// Overwrites the preset with [id] using the current form state from [notifier].
+  /// Preserves the original id and createdAt — only updates the content and name.
+  Future<void> overwritePreset(
+    String id,
+    String name,
+    ApiTesterNotifier notifier,
+  ) async {
+    final index = _presets.indexWhere((p) => p.id == id);
+    if (index == -1) return;
+    final original = _presets[index];
+    final updated = Preset(
+      id: original.id,
+      name: name.trim().isEmpty ? original.name : name.trim(),
+      createdAt: original.createdAt,
+      baseUrl: notifier.baseUrlController.text,
+      endpoint: notifier.endpointController.text,
+      method: notifier.method,
+      endpointType: notifier.endpointType,
+      authType: notifier.authType,
+      apiKeyPlacement: notifier.apiKeyPlacement,
+      username: notifier.usernameController.text,
+      password: notifier.passwordController.text,
+      token: notifier.tokenController.text,
+      apiKeyName: notifier.apiKeyNameController.text,
+      apiKeyValue: notifier.apiKeyValueController.text,
+      headers: List.of(notifier.headers),
+      queryParams: List.of(notifier.queryParams),
+      pathParams: List.of(notifier.pathParams),
+      formFields: List.of(notifier.formFields),
+      bodyType: notifier.bodyType,
+      rawJsonBody: notifier.rawJsonController.text,
+    );
+    _presets = [..._presets];
+    _presets[index] = updated;
+    notifyListeners();
+    await PresetStorage.save(_presets);
+  }
+
   /// Loads [preset] into [notifier] as an exact snapshot, fully replacing all current
   /// request form state. No merging — the old state is cleared before the preset is applied.
   void apply(Preset preset, ApiTesterNotifier notifier) {

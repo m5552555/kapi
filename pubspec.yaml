@@ -18,6 +18,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  msix: ^3.16.7
 
 flutter:
   uses-material-design: true
@@ -27,3 +28,16 @@ flutter_launcher_icons:
     generate: true
     image_path: "assets/icons/kapi_icon.png"
     icon_size: 256
+
+msix_config:
+  display_name: Khallaf API Tester
+  publisher_display_name: a1systems
+  identity_name: a1systems.KhallafAPITester
+  publisher: CN=4B16C474-01ED-49AC-8656-4BDC0A85089B
+  msix_version: 1.0.0.0
+  logo_path: assets/icons/kapi_icon.png
+  store: true
+  output_path: build/windows/x64/runner/Release
+  output_name: KhallafAPITester
+  languages: en-us
+  capabilities: internetClient
